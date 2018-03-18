@@ -16,11 +16,11 @@ def _parse_example(proto, image_dim):
                 "image/width": tf.FixedLenFeature((), tf.int64)}
     parsed = tf.parse_single_example(proto, features)
 
-    # Rescale to 1./255.
-    image = tf.image.convert_image_dtype(
-        tf.image.decode_jpeg(parsed["image/encoded"]), tf.float32)
+    image = tf.image.decode_jpeg(parsed["image/encoded"])
 
-    image = tf.reshape(image, image_dim)
+    image = tf.image.per_image_standardization(image)
+    image.set_shape(image_dim)
+
     label = tf.cast(
                 tf.reshape(parsed["image/class/label"], [-1]),
                 tf.float32)
